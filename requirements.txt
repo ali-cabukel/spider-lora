@@ -1,0 +1,18 @@
+# Core. torch is intentionally unpinned: install the right build for your
+# platform first (Mac: pip install torch; CUDA: see pytorch.org/get-started).
+torch>=2.4
+transformers>=4.51      # Qwen3 support
+peft>=0.13
+datasets>=2.20
+huggingface_hub>=0.23
+accelerate>=0.34
+pyyaml>=6.0
+numpy
+
+# CUDA only. Both are no-ops / unavailable on Apple Silicon; the code guards
+# for their absence, so leaving them uninstalled on a Mac is expected.
+# bitsandbytes>=0.43    # QLoRA
+# flash-attn>=2.6       # needs SM80+ and a long compile
+
+# Dev
+pytest

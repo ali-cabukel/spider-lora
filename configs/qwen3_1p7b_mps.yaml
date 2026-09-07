@@ -1,0 +1,42 @@
+# Apple Silicon. Target: 24-32GB unified memory.
+# On a 16GB machine, switch model.id to Qwen/Qwen3-0.6B.
+seed: 42
+output_dir: runs/qwen3_1p7b_r16
+log_db: runs/runs.sqlite
+
+model:
+  id: Qwen/Qwen3-1.7B
+  load_in_4bit: false        # bitsandbytes has no MPS backend; see src/env.py
+  attn_implementation: null  # null = autodetect (sdpa). Set "eager" if you hit
+                             # an unimplemented-op fallback to CPU.
+  allow_mps_bf16: null       # null = autodetect (bf16 on M2+, fp32 on M1)
+
+data:
+  spider_dir: data/spider            # local JSON; falls back to the HF hub
+  db_root: data/spider/database      # sqlite files, required for exec accuracy
+  max_len: 1024
+  sample_rows: 0             # >0 injects example rows into the schema prompt
+  train_limit: null
+
+lora:
+  r: 16
+  alpha: null                # null => 2*r, so a rank sweep is not confounded
+                             # with an effective-learning-rate change
+  dropout: 0.05
+  target_modules: null       # null => attention + MLP projections
+
+train:
+  epochs: 2
+  batch_size: 1
+  grad_accum: 16             # effective batch 16
+  lr: 2.0e-4
+  weight_decay: 0.0
+  warmup_ratio: 0.03
+  max_grad_norm: 1.0
+  gradient_checkpointing: true
+  log_every: 10
+  save_every: 200
+
+eval:
+  batch_size: 4
+  max_new_tokens: 256
