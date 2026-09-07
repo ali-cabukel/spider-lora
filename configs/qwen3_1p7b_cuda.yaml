@@ -1,0 +1,40 @@
+# CUDA. Effective batch size and LR are identical to the MPS config, so the
+# two runs are comparable; only the batch/accum split and precision differ.
+seed: 42
+output_dir: runs/qwen3_1p7b_r16_cuda
+log_db: runs/runs.sqlite
+
+model:
+  id: Qwen/Qwen3-1.7B
+  load_in_4bit: true         # QLoRA. Silently ignored (with a warning) on MPS.
+  attn_implementation: null  # null = flash_attention_2 if installed + SM80+
+  allow_mps_bf16: null
+
+data:
+  spider_dir: data/spider
+  db_root: data/spider/database
+  max_len: 1024
+  sample_rows: 0
+  train_limit: null
+
+lora:
+  r: 16
+  alpha: null
+  dropout: 0.05
+  target_modules: null
+
+train:
+  epochs: 2
+  batch_size: 8
+  grad_accum: 2              # effective batch 16, matching the MPS config
+  lr: 2.0e-4
+  weight_decay: 0.0
+  warmup_ratio: 0.03
+  max_grad_norm: 1.0
+  gradient_checkpointing: true
+  log_every: 10
+  save_every: 200
+
+eval:
+  batch_size: 32
+  max_new_tokens: 256
